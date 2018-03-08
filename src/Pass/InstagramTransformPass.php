@@ -17,8 +17,6 @@
 
 namespace Lullabot\AMP\Pass;
 
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\GuzzleException;
 use QueryPath\DOMQuery;
 
 use Lullabot\AMP\Utility\ActionTakenLine;
@@ -89,30 +87,7 @@ class InstagramTransformPass extends BasePass
         $el->attr('data-shortcode', $shortcode);
         $el->attr('width', self::DEFAULT_INSTAGRAM_WIDTH);
         $el->attr('height', self::DEFAULT_INSTAGRAM_HEIGHT);
-
-        $client = new Client();
-        try {
-            $res = $client->get('https://api.instagram.com/oembed/', [
-                'query' => ['url' => $url]
-            ]);
-        } catch (GuzzleException $e) {
-            return $e->getMessage() . PHP_EOL . 'Could not make request to instagram oembed endpoint. Setting default height and width';
-        }
-
-        if ($res->getStatusCode() !== 200) {
-            return "Instagram oembed endpoint returned status code: {$res->getStatusCode()} . Setting default height and width.";
-        }
-
-        $oembed = json_decode($res->getBody(), true);
-        if (empty($oembed)) {
-            return "Instagram oembed endpoint returned invalid json. Setting default height and width.";
-        }
-
-        if (isset($oembed['thumbnail_width']) && isset($oembed['thumbnail_height'])) {
-            $el->attr('width', $oembed['thumbnail_width']);
-            $el->attr('height', $oembed['thumbnail_height']);
-        }
-
+        
         return null;
     }
 
